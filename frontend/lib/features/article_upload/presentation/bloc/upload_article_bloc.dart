@@ -19,15 +19,30 @@ class UploadArticleBloc extends Bloc<UploadArticleEvent, UploadArticleState> {
     emit(UploadArticleLoading());
 
     try {
-      // 1. Subir el artículo
-      final articleId = await _repository.uploadArticle(event.article);
-
-      // 2. Si hay imagen, subirla y actualizar el documento
-      if (event.imagePath != null) {
-        final imageUrl =
-            await _repository.uploadThumbnail(articleId, event.imagePath!);
-        await _repository.updateThumbnailUrl(articleId, imageUrl);
+      // Validar que hay imagen
+      if (event.imagePath == null) {
+        emit(UploadArticleError('Image is required'));
+        return;
       }
+
+      // 1. Primero subir la imagen (con ID temporal)
+      final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+      final imageUrl =
+          await _repository.uploadThumbnail(tempId, event.imagePath!);
+
+      // 2. Crear artículo con la URL de imagen incluida
+      final articleWithImage = UploadArticle(
+        title: event.article.title,
+        description: event.article.description,
+        content: event.article.content,
+        author: event.article.author,
+        thumbnailURL: imageUrl,
+        isPublished: event.article.isPublished,
+        tags: event.article.tags,
+        category: event.article.category,
+      );
+
+      final articleId = await _repository.uploadArticle(articleWithImage);
 
       emit(UploadArticleSuccess(articleId));
     } catch (e) {
