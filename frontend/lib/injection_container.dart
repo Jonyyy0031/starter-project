@@ -11,7 +11,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'features/article_upload/data/data_sources/firestore_article_service.dart';
 import 'features/article_upload/data/repository/upload_article_repository_impl.dart';
 import 'features/article_upload/domain/repository/upload_article_repository.dart';
+import 'features/article_upload/domain/usecases/get_articles_usecase.dart';
+import 'features/article_upload/domain/usecases/delete_article_usecase.dart';
+import 'features/article_upload/domain/usecases/update_article_usecase.dart';
 import 'features/article_upload/presentation/bloc/upload_article_bloc.dart';
+import 'features/article_upload/presentation/bloc/my_articles/my_articles_bloc.dart';
 import 'features/daily_news/domain/usecases/get_saved_article.dart';
 import 'features/daily_news/domain/usecases/remove_article.dart';
 import 'features/daily_news/domain/usecases/save_article.dart';
@@ -20,8 +24,8 @@ import 'features/daily_news/presentation/bloc/article/local/local_article_bloc.d
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
-
-  final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+  final database =
+      await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   sl.registerSingleton<AppDatabase>(database);
 
   // Dio
@@ -30,51 +34,40 @@ Future<void> initializeDependencies() async {
   // Dependencies
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
 
-  sl.registerSingleton<ArticleRepository>(
-    ArticleRepositoryImpl(sl(),sl())
-  );
+  sl.registerSingleton<ArticleRepository>(ArticleRepositoryImpl(sl(), sl()));
 
   sl.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
   sl.registerSingleton<FirebaseStorage>(FirebaseStorage.instance);
 
   sl.registerSingleton<FirestoreArticleService>(
-    FirestoreArticleService(sl(), sl())
-  );
-  
+      FirestoreArticleService(sl(), sl()));
+
   sl.registerSingleton<UploadArticleRepository>(
-    UploadArticleRepositoryImpl(sl())
-  );
+      UploadArticleRepositoryImpl(sl()));
 
   //UseCases
-  sl.registerSingleton<GetArticleUseCase>(
-    GetArticleUseCase(sl())
-  );
+  sl.registerSingleton<GetArticleUseCase>(GetArticleUseCase(sl()));
 
-  sl.registerSingleton<GetSavedArticleUseCase>(
-    GetSavedArticleUseCase(sl())
-  );
+  sl.registerSingleton<GetSavedArticleUseCase>(GetSavedArticleUseCase(sl()));
 
-  sl.registerSingleton<SaveArticleUseCase>(
-    SaveArticleUseCase(sl())
-  );
+  sl.registerSingleton<SaveArticleUseCase>(SaveArticleUseCase(sl()));
 
-  sl.registerSingleton<RemoveArticleUseCase>(
-    RemoveArticleUseCase(sl())
-  );
+  sl.registerSingleton<RemoveArticleUseCase>(RemoveArticleUseCase(sl()));
 
+  // Article Upload UseCases
+  sl.registerSingleton<GetArticlesUseCase>(GetArticlesUseCase(sl()));
+
+  sl.registerSingleton<DeleteArticleUseCase>(DeleteArticleUseCase(sl()));
+
+  sl.registerSingleton<UpdateArticleUseCase>(UpdateArticleUseCase(sl()));
 
   //Blocs
-  sl.registerFactory<RemoteArticlesBloc>(
-    ()=> RemoteArticlesBloc(sl())
-  );
+  sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
 
   sl.registerFactory<LocalArticleBloc>(
-    ()=> LocalArticleBloc(sl(),sl(),sl())
-  );
+      () => LocalArticleBloc(sl(), sl(), sl()));
 
-  sl.registerFactory<UploadArticleBloc>(
-    ()=> UploadArticleBloc(sl())
-  );
+  sl.registerFactory<UploadArticleBloc>(() => UploadArticleBloc(sl()));
 
-
+  sl.registerFactory<MyArticlesBloc>(() => MyArticlesBloc(sl(), sl()));
 }

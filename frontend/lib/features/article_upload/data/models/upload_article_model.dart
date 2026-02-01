@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/upload_article.dart';
 
 class UploadArticleModel extends UploadArticle {
@@ -22,8 +23,8 @@ class UploadArticleModel extends UploadArticle {
       'content': content,
       'author': author,
       'thumbnailURL': thumbnailURL,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': null,
       'isPublished': isPublished,
       'tags': tags,
       'category': category,
@@ -44,5 +45,36 @@ class UploadArticleModel extends UploadArticle {
       tags: entity.tags,
       category: entity.category,
     );
+  }
+
+  factory UploadArticleModel.fromFirestore(
+      String id, Map<String, dynamic> data) {
+    return UploadArticleModel(
+      id: id,
+      title: data['title'] ?? '',
+      description: data['description'] ?? '',
+      content: data['content'] ?? '',
+      author: data['author'] ?? '',
+      thumbnailURL: data['thumbnailURL'],
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+      isPublished: data['isPublished'] ?? false,
+      tags: List<String>.from(data['tags'] ?? []),
+      category: data['category'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJsonForUpdate() {
+    return {
+      'title': title,
+      'description': description,
+      'content': content,
+      'author': author,
+      'thumbnailURL': thumbnailURL ?? '',
+      'updatedAt': FieldValue.serverTimestamp(),
+      'isPublished': isPublished,
+      'tags': tags,
+      'category': category,
+    };
   }
 }

@@ -8,3 +8,10 @@ class SubmitArticle extends UploadArticleEvent {
 
   SubmitArticle({required this.article, this.imagePath});
 }
+
+class UpdateArticle extends UploadArticleEvent {
+  final UploadArticle article;
+  final String? imagePath;
+
+  UpdateArticle({required this.article, this.imagePath});
+}
